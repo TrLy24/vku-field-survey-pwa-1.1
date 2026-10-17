@@ -1,48 +1,69 @@
 # VKU Field Survey PWA
 
-An offline-first, installable field survey for recording VKU students' employment needs. The app works without a network after its first secure load, stores drafts, survey sessions, and compressed field photos in the device's IndexedDB, and sends one spreadsheet row per saved session when a Google Apps Script Web App is configured.
+## Giới thiệu
 
-## Features
+Đây là ứng dụng khảo sát thực địa theo hướng PWA (Progressive Web App) dành cho việc ghi nhận nhu cầu việc làm của sinh viên VKU. Ứng dụng có thể hoạt động ngay cả khi không có mạng sau lần truy cập an toàn đầu tiên, lưu bản nháp, lưu phiên khảo sát và ảnh chụp đã nén trong IndexedDB của trình duyệt, đồng thời gửi từng bản ghi khảo sát lên Google Sheets thông qua Google Apps Script khi đã cấu hình xong.
 
-- Vietnamese, responsive interview form with interviewer/respondent, interview date and time, job preferences, skills, challenges, and support needs.
-- Browser geolocation with an explicit permission action; location is optional and never requested in the background.
-- Camera/photo picker; JPEG-compressed photos are kept in IndexedDB until the survey is synchronized.
-- Multiple independent sessions, autosaved drafts, pending/synced status, retry controls, and an on-screen success/error notification.
-- Service worker caches the application shell. Survey data and images are stored separately in IndexedDB, not in the service-worker cache.
-- Apps Script writes one row per session and stores an optional image in the script owner's Google Drive. A repeated request ID is idempotent.
+## Tính năng
 
-## Run locally
+- Biểu mẫu khảo sát tiếng Việt, thân thiện với màn hình điện thoại và máy tính bảng.
+- Gồm các thông tin như người phỏng vấn, người được phỏng vấn, ngày giờ khảo sát, sở thích việc làm, kỹ năng, thách thức và nhu cầu hỗ trợ.
+- Quyền truy cập vị trí trên trình duyệt với yêu cầu rõ ràng từ người dùng; tính năng vị trí là tùy chọn và không được yêu cầu ở chế độ nền.
+- Hỗ trợ chụp ảnh hoặc chọn ảnh từ thư viện; ảnh được nén theo định dạng JPEG trước khi lưu trong IndexedDB cho đến khi đồng bộ dữ liệu.
+- Hỗ trợ nhiều phiên khảo sát độc lập, tự động lưu nháp, trạng thái chờ đồng bộ/đã đồng bộ, nút thử lại và thông báo thành công/lỗi trực quan trên giao diện.
+- Service worker lưu trữ shell ứng dụng để có thể mở nhanh offline. Dữ liệu khảo sát và hình ảnh được lưu riêng trong IndexedDB, không lưu trong cache của service worker.
+- Google Apps Script ghi từng phiên khảo sát thành một hàng dữ liệu trên bảng tính và có thể lưu một ảnh tùy chọn vào Google Drive của chủ script. Mã yêu cầu lặp lại được xử lý theo kiểu idempotent để tránh trùng dữ liệu.
 
-Service workers, camera access, and geolocation require a secure context. Use `localhost` for development rather than opening `index.html` directly.
+## Chạy local
+
+Service worker, quyền truy cập máy ảnh và vị trí đều yêu cầu môi trường bảo mật (secure context). Nên dùng `localhost` trong quá trình phát triển thay vì mở trực tiếp file `index.html`.
 
 ```sh
 npx serve .
 ```
 
-Open the local HTTPS/localhost address in a supported browser. No build step, third-party runtime dependency, or external font request is required.
+Sau đó mở địa chỉ `localhost` hoặc HTTPS local trong trình duyệt hỗ trợ. Dự án không cần build, không cần runtime bên thứ ba và không cần tải font từ bên ngoài.
 
-## Connect Google Sheets
+## Kết nối Google Sheets
 
-1. Create a dedicated Google spreadsheet. The script creates a `Surveys` tab and its header row.
-2. Open **Extensions → Apps Script**, replace the editor contents with [`google-apps-script/Code.gs`](./google-apps-script/Code.gs), and save.
-3. In Apps Script, select `setupSpreadsheet` and click **Run** while the project is opened from the destination spreadsheet. Approve the requested Sheets and Drive permissions. This saves the destination spreadsheet ID in Script Properties so Web App requests do not depend on an active spreadsheet.
-4. Deploy or update the deployment as a **Web app**. Set **Execute as** to your account and access to **Anyone** (or the narrowest access setting supported by your deployment). For an existing deployment, choose **Deploy → Manage deployments → Edit → New version → Deploy**; saving the editor code alone does not update a deployed version.
-5. Copy the deployed HTTPS URL ending in `/exec`. Open it in a browser: it should display **VKU Survey Sync đang hoạt động**. If it reports that the endpoint is not configured, run `setupSpreadsheet` and deploy a new version. In the PWA, paste the URL under **Kết nối Google Sheets** and save.
-6. Submit a sample survey and check the `Surveys` tab (not the default `Sheet1`). A successful acknowledgement changes the local status to **Đã đồng bộ**. Failed uploads stay in IndexedDB and can be retried.
-7. To make the results sheet public as requested, share the spreadsheet with **Anyone with the link → Viewer**. Keep the survey anonymous and do not put sensitive personal information in a publicly readable sheet.
+1. Tạo một bảng tính Google riêng cho dự án. Script sẽ tự động tạo tab `Surveys` và hàng tiêu đề ban đầu.
+2. Mở **Extensions → Apps Script**, thay toàn bộ nội dung editor bằng file [`google-apps-script/Code.gs`](./google-apps-script/Code.gs), rồi lưu lại.
+3. Trong Apps Script, chọn hàm `setupSpreadsheet` và nhấn **Run** khi project đang mở trong bảng tính đích. Chấp nhận quyền truy cập vào Sheets và Drive được yêu cầu. Thao tác này sẽ lưu ID của bảng tính đích vào Script Properties, giúp Web App không phụ thuộc vào việc bảng tính đang mở hay không.
+4. Triển khai (deploy) hoặc cập nhật deployment ở dạng **Web app**. Thiết lập **Execute as** là tài khoản của bạn và **Who has access to the app** là **Anyone** hoặc mức quyền hẹp nhất được hỗ trợ theo môi trường triển khai. Với deployment cũ, hãy chọn **Deploy → Manage deployments → Edit → New version → Deploy**; chỉ lưu code trong editor không đủ để cập nhật phiên bản đang triển khai.
+5. Sao chép URL HTTPS đã triển khai, có đuôi `/exec`. Mở URL đó trong trình duyệt: nó sẽ hiển thị thông báo **VKU Survey Sync đang hoạt động**. Nếu báo rằng endpoint chưa được cấu hình, hãy chạy `setupSpreadsheet` và triển khai lại phiên bản mới. Trong PWA, dán URL đó vào phần **Kết nối Google Sheets** rồi lưu.
+6. Gửi một khảo sát mẫu và kiểm tra tab `Surveys` (không phải tab mặc định `Sheet1`). Nếu đồng bộ thành công, trạng thái cục bộ sẽ đổi thành **Đã đồng bộ**. Nếu upload thất bại, dữ liệu vẫn nằm trong IndexedDB và có thể thử lại sau.
+7. Nếu muốn sheet kết quả công khai theo yêu cầu, hãy chia sẻ bảng tính với quyền **Anyone with the link → Viewer**. Hãy giữ dữ liệu khảo sát ở mức ẩn danh và không lưu thông tin cá nhân nhạy cảm vào sheet có thể xem công khai.
 
-The app sends a normal HTML form POST to the Apps Script Web App, and the response acknowledges the matching request through `postMessage`; this avoids relying on cross-origin `fetch` access. Only a matching success response marks a session synced. The Apps Script checks survey IDs to avoid duplicate rows when a response is lost and the device retries. Opening the Web App URL provides a basic endpoint and spreadsheet-configuration check.
+Ứng dụng sẽ gửi dữ liệu theo kiểu HTML form POST tới Google Apps Script Web App, và phản hồi sẽ được xác nhận thông qua `postMessage` để tránh phụ thuộc vào `fetch` cross-origin. Chỉ phản hồi thành công khớp với yêu cầu mới được xem là khảo sát đã đồng bộ. Apps Script kiểm tra ID khảo sát để tránh tạo hàng trùng khi thiết bị lặp lại yêu cầu vì mất phản hồi. Việc mở URL Web App cũng cung cấp một endpoint kiểm tra cơ bản và trạng thái cấu hình bảng tính.
 
-### Public sheet and photo privacy
+### Quyền riêng tư của sheet công khai và ảnh
 
-The Web App endpoint must accept anonymous requests for public hosting without user sign-in. Anyone who discovers that URL can submit data, so use a dedicated spreadsheet, review submissions, and do not collect sensitive personal data. If you need confidential responses, restrict access and add an authenticated backend before deployment. Public spreadsheet viewer access also exposes every row; Apps Script stores photos in the spreadsheet owner's Drive with its normal access controls and does not make them public automatically.
+Endpoint Web App phải chấp nhận các request ẩn danh để có thể host công khai mà không yêu cầu đăng nhập người dùng. Bất kỳ ai biết URL đều có thể gửi dữ liệu, vì vậy hãy dùng một bảng tính riêng, kiểm tra dữ liệu đầu vào và không thu thập thông tin nhạy cảm. Nếu cần phản hồi bảo mật, hãy hạn chế quyền truy cập và thêm backend có xác thực trước khi triển khai. Quyền viewer công khai trên bảng tính sẽ cho phép xem mọi hàng dữ liệu; Apps Script lưu ảnh vào Google Drive của người sở hữu bảng tính với quyền kiểm soát truy cập bình thường và không tự động công khai ảnh đó.
 
-## Deploy the PWA
+## Triển khai PWA
 
-This is a static site; publish the project root to Cloudflare Pages (direct upload or Git integration) or Vercel. No build command is required; set the output/root directory to the repository root. HTTPS is required for installation, camera, and geolocation outside localhost.
+Đây là một trang tĩnh; bạn có thể công khai thư mục gốc của dự án lên Cloudflare Pages (tải lên trực tiếp hoặc tích hợp Git) hoặc Vercel. Không cần lệnh build; chỉ cần đặt thư mục đầu ra / root directory là thư mục gốc của repository. Yêu cầu HTTPS cho cài đặt ứng dụng, truy cập máy ảnh và định vị ngoài localhost.
 
-To publish a public GitHub repository, create an empty repository in your GitHub account, then add it as a remote and push this project. The current workspace may not have Git initialized or authenticated and cannot create your account's public repository or deploy account-bound hosting on your behalf.
+Nếu muốn công khai lên GitHub public, hãy tạo repository rỗng trong tài khoản GitHub của bạn, thêm remote và push dự án lên. Workspace hiện tại có thể chưa được khởi tạo Git hoặc chưa xác thực, nên không thể tự tạo repository public hoặc triển khai hosting gắn với tài khoản của bạn.
 
-## Offline and browser storage
+## Offline và lưu trữ trên trình duyệt
 
-The application shell is cached after its first online visit. IndexedDB is local to the browser profile and device: clearing site data, uninstalling the browser, or losing the device can erase unsynchronized surveys. Keep the browser's site storage enabled and synchronize pending sessions when a connection becomes available. Background sync is attempted on the browser's `online` event and at app startup; the user can also press **Đồng bộ ngay**. Browser support and permissions govern geolocation and camera access.
+Shell ứng dụng sẽ được cache sau lần truy cập online đầu tiên. IndexedDB nằm trong hồ sơ trình duyệt và thiết bị: xóa dữ liệu trang web, gỡ cài đặt trình duyệt hoặc mất thiết bị có thể làm mất các khảo sát chưa đồng bộ. Hãy giữ bật lưu trữ của site và đồng bộ các phiên đang chờ khi có kết nối. Tự động đồng bộ sẽ được kích hoạt khi trình duyệt phát ra sự kiện `online` và khi ứng dụng khởi động; người dùng cũng có thể nhấn **Đồng bộ ngay**. Tính năng định vị và máy ảnh vẫn phụ thuộc vào hỗ trợ của trình duyệt và quyền được cấp.
+
+## Cấu trúc dự án
+
+- `index.html`: giao diện chính của ứng dụng.
+- `app.js`: xử lý logic ứng dụng, lưu trữ, đồng bộ và gửi dữ liệu.
+- `styles.css`: giao diện và định dạng của PWA.
+- `sw.js`: service worker cho chế độ offline.
+- `manifest.json`: metadata để cài đặt PWA trên thiết bị.
+- `google-apps-script/Code.gs`: script Google Apps Script nhận dữ liệu từ app và ghi vào Sheets.
+- `icons/`: icon của ứng dụng.
+
+## Lưu ý phát triển
+
+- Chỉ nên chạy và test trên môi trường HTTPS hoặc localhost.
+- Khi chỉnh sửa logic đồng bộ dữ liệu, hãy kiểm tra cả trường hợp mất mạng và retry.
+- Luôn ưu tiên giữ dữ liệu khảo sát an toàn, tránh thu thập thông tin nhạy cảm vào sheet public.
+- Nếu cần mở rộng tính năng, hãy duy trì tối đa tính tương thích với PWA chuẩn của trình duyệt.
+>>>>>>> b89edb29ef6a7d94927dfa34e8a3ee59950cea5d
