@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b5d4b">
+    <meta name="description" content="Khảo sát nhu cầu việc làm sinh viên VKU, sử dụng được khi không có mạng.">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+    <title>Khảo sát việc làm · VKU</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="VKU Field Survey - Trang chủ">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span><strong>VKU Field Survey</strong><small>Khảo sát nhu cầu việc làm sinh viên</small></span>
+      </a>
+      <div class="connection"><span id="connection-dot" class="connection-dot"></span><span id="connection-label">Đang kiểm tra kết nối</span></div>
+    </header>
+
+    <main class="layout">
+      <section class="intro">
+        <p class="eyebrow">KHẢO SÁT THỰC ĐỊA · OFFLINE-FIRST</p>
+        <h1>Lắng nghe nhu cầu,<br><span>kết nối cơ hội việc làm.</span></h1>
+        <p class="intro-copy">Ghi nhận ý kiến sinh viên ngay cả khi mất mạng. Phiên khảo sát và ảnh được lưu trên thiết bị trước khi đồng bộ.</p>
+        <div class="sync-summary" aria-live="polite">
+          <span class="summary-icon" aria-hidden="true">↻</span>
+          <span><strong id="queue-count">0 phiên chờ đồng bộ</strong><small id="last-sync">Dữ liệu được lưu trên thiết bị của bạn</small></span>
+          <button id="sync-now" class="quiet-button" type="button">Đồng bộ ngay</button>
+        </div>
+      </section>
+
+      <div class="content-grid">
+        <section class="form-card" aria-labelledby="form-title">
+          <div class="card-heading">
+            <div><p class="eyebrow">PHIÊN KHẢO SÁT MỚI</p><h2 id="form-title">Thông tin phỏng vấn</h2></div>
+            <span id="draft-indicator" class="draft-indicator">Chưa lưu</span>
+          </div>
+
+          <form id="survey-form">
+            <div class="form-grid">
+              <label class="field">
+                <span>Tên người được phỏng vấn <b>*</b></span>
+                <input name="respondentName" autocomplete="name" required maxlength="120" placeholder="Nhập họ và tên">
+              </label>
+              <label class="field">
+                <span>Tên người phỏng vấn <b>*</b></span>
+                <input name="interviewerName" required maxlength="120" placeholder="Nhập họ và tên">
+              </label>
+              <label class="field">
+                <span>Thời gian phỏng vấn</span>
+                <input name="interviewTime" type="datetime-local" required>
+              </label>
+              <div class="field">
+                <span>Vị trí khảo sát</span>
+                <div class="location-row">
+                  <button id="location-button" class="secondary-button" type="button"><span aria-hidden="true">⌖</span> Lấy vị trí hiện tại</button>
+                  <span id="location-status" class="field-hint">Chưa ghi nhận vị trí</span>
+                </div>
+                <input name="location" type="hidden">
+              </div>
+            </div>
+
+            <div class="section-divider"><span>NHU CẦU VIỆC LÀM</span></div>
+            <div class="question-grid">
+              <label class="field">
+                <span>1. Bạn đang ở giai đoạn nào?</span>
+                <select name="studyStage">
+                  <option value="">Chọn câu trả lời</option>
+                  <option>Năm nhất</option><option>Năm hai</option><option>Năm ba</option><option>Năm tư</option><option>Đã tốt nghiệp</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>2. Bạn muốn tìm loại công việc nào?</span>
+                <select name="jobType">
+                  <option value="">Chọn câu trả lời</option>
+                  <option>Thực tập</option><option>Bán thời gian</option><option>Toàn thời gian</option><option>Làm việc tự do</option><option>Chưa xác định</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>3. Lĩnh vực hoặc vị trí mong muốn</span>
+                <input name="desiredRole" maxlength="240" placeholder="Ví dụ: phát triển phần mềm, thiết kế">
+              </label>
+              <label class="field">
+                <span>4. Khi nào bạn muốn bắt đầu?</span>
+                <select name="startTiming">
+                  <option value="">Chọn câu trả lời</option>
+                  <option>Ngay bây giờ</option><option>Trong 1-3 tháng</option><option>Sau khi tốt nghiệp</option><option>Đang tìm hiểu</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>5. Hình thức làm việc ưu tiên</span>
+                <select name="workMode">
+                  <option value="">Chọn câu trả lời</option>
+                  <option>Tại văn phòng</option><option>Từ xa</option><option>Kết hợp</option><option>Không có ưu tiên</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>6. Mức thu nhập kỳ vọng (VND/tháng)</span>
+                <input name="expectedIncome" inputmode="numeric" maxlength="80" placeholder="Có thể bỏ trống">
+              </label>
+              <label class="field full-width">
+                <span>7. Kỹ năng hoặc kinh nghiệm bạn muốn sử dụng</span>
+                <textarea name="skills" rows="3" maxlength="1000" placeholder="Kỹ năng chuyên môn, ngoại ngữ, dự án..."></textarea>
+              </label>
+              <label class="field full-width">
+                <span>8. Khó khăn lớn nhất khi tìm việc của bạn là gì?</span>
+                <textarea name="challenge" rows="3" maxlength="1000" placeholder="Ví dụ: thiếu kinh nghiệm, chưa biết tìm cơ hội ở đâu..."></textarea>
+              </label>
+              <label class="field full-width">
+                <span>9. Hỗ trợ nào từ nhà trường sẽ hữu ích nhất?</span>
+                <textarea name="supportNeeded" rows="3" maxlength="1000" placeholder="Ví dụ: kết nối doanh nghiệp, hướng dẫn CV, ngày hội việc làm..."></textarea>
+              </label>
+              <label class="field full-width">
+                <span>Ghi chú thêm</span>
+                <textarea name="notes" rows="2" maxlength="1000" placeholder="Thông tin khác (không bắt buộc)"></textarea>
+              </label>
+            </div>
+
+            <div class="section-divider"><span>ẢNH HIỆN TRƯỜNG</span></div>
+            <div class="photo-area">
+              <label class="photo-picker" for="site-photo">
+                <span class="photo-icon" aria-hidden="true">＋</span>
+                <span><strong>Chụp hoặc chọn ảnh</strong><small>Ảnh được lưu trên thiết bị và gửi cùng phiên khảo sát</small></span>
+                <input id="site-photo" name="sitePhoto" type="file" accept="image/*" capture="environment">
+              </label>
+              <div id="photo-preview" class="photo-preview" hidden>
+                <img id="photo-image" alt="Ảnh hiện trường đã chọn">
+                <div><strong id="photo-name"></strong><small id="photo-size"></small></div>
+                <button id="remove-photo" class="icon-button" type="button" aria-label="Xóa ảnh">×</button>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button id="save-button" class="primary-button" type="submit"><span aria-hidden="true">✓</span> Lưu phiên khảo sát</button>
+              <button id="new-button" class="secondary-button" type="button">Phiên khảo sát mới</button>
+              <span class="privacy-note">Dữ liệu được lưu trên thiết bị trước khi đồng bộ.</span>
+            </div>
+          </form>
+        </section>
+
+        <aside class="side-column">
+          <section class="settings-card">
+            <div class="side-heading"><div class="mini-icon">▤</div><div><h2>Kết nối Google Sheets</h2><p>Thiết lập một lần trên thiết bị này</p></div></div>
+            <label class="field">
+              <span>URL Web App của Apps Script</span>
+              <input id="endpoint-input" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/.../exec">
+            </label>
+            <button id="save-settings" class="secondary-button full-button" type="button">Lưu cấu hình</button>
+            <p class="help-text">URL chỉ lưu trong trình duyệt này. Dữ liệu sẽ chờ trên thiết bị nếu chưa cấu hình.</p>
+          </section>
+
+          <section class="history-card">
+            <div class="history-heading"><div><p class="eyebrow">TRÊN THIẾT BỊ NÀY</p><h2>Phiên gần đây</h2></div><span id="total-count" class="count-badge">0</span></div>
+            <div id="survey-list" class="survey-list"><div class="empty-state">Các phiên đã lưu sẽ xuất hiện ở đây.</div></div>
+          </section>
+
+          <div class="offline-tip"><span aria-hidden="true">◉</span><p><strong>Không có mạng vẫn khảo sát được</strong><br>Hãy mở ứng dụng khi có mạng ít nhất một lần để lưu ứng dụng vào thiết bị.</p></div>
+        </aside>
+      </div>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <iframe id="sync-frame" name="sync-frame" title="Kết quả đồng bộ" class="hidden-frame"></iframe>
+    <footer><span>VKU Field Survey PWA</span><span>Dữ liệu đồng bộ theo từng phiên khảo sát.</span></footer>
+    <script src="./app.js" defer></script>
+  </body>
+</html>

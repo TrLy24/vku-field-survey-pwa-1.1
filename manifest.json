@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "VKU Field Survey - Khảo sát nhu cầu việc làm sinh viên VKU",
+  "short_name": "VKU Survey",
+  "description": "Ứng dụng khảo sát nhu cầu việc làm sinh viên VKU, hỗ trợ ngoại tuyến.",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f8f6",
+  "theme_color": "#0b5d4b",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
